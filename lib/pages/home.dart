@@ -12,11 +12,20 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Barcode? barcodeResult;
   final GlobalKey qrScanner = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   IconData flashIcon = Icons.flash_off;
+  late AnimationController _animationController;
+  Tween<Offset> _tween = Tween(begin: Offset(0, -7), end: Offset(0, 7));
+  @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(duration: const Duration(seconds: 1), vsync: this);
+    _animationController.repeat(reverse: true);
+  }
 
   @override
   void reassemble() {
@@ -43,6 +52,36 @@ class _HomePageState extends State<HomePage> {
                 borderLength: 30,
                 cutOutBottomOffset: 1),
           ),
+          Container(
+              padding: EdgeInsets.all(10),
+              child: SlideTransition(
+                position: _tween.animate(CurvedAnimation(
+                    parent: _animationController, curve: Curves.easeInOut)),
+                child: Container(
+                  width: 250,
+                  child: Divider(
+                    thickness: 2,
+                    color: Colors.red,
+                  ),
+                ),
+              )
+              //TweenAnimationBuilder(
+              //     tween: Tween<double>(begin: 0, end: 240),
+              //     duration: Duration(seconds: 2),
+              //     curve: Curves.decelerate,
+              //     builder: (context, double val, child) {
+              //       return Center(
+              //         child: Container(
+              //           margin: EdgeInsets.only(top: val),
+              //           width: 250,
+              //           child: Divider(
+              //             thickness: 3,
+              //             color: Colors.red,
+              //           ),
+              //         ),
+              //       );
+              //     }),
+              ),
           buildScannedOutput(),
           buildFlashButton(),
           Positioned(
@@ -53,7 +92,17 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => ViewScans()));
                   },
-                  child: Text("View Scans")),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.qr_code,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 4),
+                      Text("View Scans"),
+                    ],
+                  )),
             ),
           ),
         ],
@@ -89,11 +138,18 @@ class _HomePageState extends State<HomePage> {
   Positioned buildScannedOutput() {
     return Positioned(
       bottom: 100,
+      left: 0,
+      right: 0,
       child: Container(
           alignment: Alignment.bottomCenter,
-          child: Text(
-            barcodeResult != null ? barcodeResult!.code : "Scan Something",
-            style: TextStyle(color: Colors.white, fontSize: 20),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              barcodeResult != null ? barcodeResult!.code : "Scan Something",
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
           )),
     );
   }
@@ -116,6 +172,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     controller?.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }
