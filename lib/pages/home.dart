@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   IconData flashIcon = Icons.flash_off;
   late AnimationController _animationController;
   Tween<Offset> _tween = Tween(begin: Offset(0, -7), end: Offset(0, 7));
+  bool camPermission = true;
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +47,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           QRView(
             key: qrScanner,
             onQRViewCreated: _onQRViewCreated,
+            onPermissionSet: (controller, isSet) {
+              if (isSet == false) {
+                camPermission = false;
+              } else {
+                camPermission = true;
+              }
+              setState(() {});
+            },
             overlay: QrScannerOverlayShape(
                 cutOutSize: MediaQuery.of(context).size.width * 0.7,
                 borderWidth: 10.0,
@@ -52,36 +62,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 borderLength: 30,
                 cutOutBottomOffset: 1),
           ),
+          Positioned(
+            top: 100,
+            child: Container(
+                child: Text(
+              camPermission ? "" : "Give Camera Permission!",
+              style: TextStyle(fontSize: 25, color: Colors.red),
+            )),
+          ),
           Container(
               padding: EdgeInsets.all(10),
               child: SlideTransition(
                 position: _tween.animate(CurvedAnimation(
                     parent: _animationController, curve: Curves.easeInOut)),
                 child: Container(
-                  width: 250,
+                  width: 240,
                   child: Divider(
                     thickness: 2,
                     color: Colors.red,
                   ),
                 ),
-              )
-              //TweenAnimationBuilder(
-              //     tween: Tween<double>(begin: 0, end: 240),
-              //     duration: Duration(seconds: 2),
-              //     curve: Curves.decelerate,
-              //     builder: (context, double val, child) {
-              //       return Center(
-              //         child: Container(
-              //           margin: EdgeInsets.only(top: val),
-              //           width: 250,
-              //           child: Divider(
-              //             thickness: 3,
-              //             color: Colors.red,
-              //           ),
-              //         ),
-              //       );
-              //     }),
-              ),
+              )),
           buildScannedOutput(),
           buildFlashButton(),
           Positioned(
@@ -157,7 +158,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (scannedData.any((element) => element.text != scanData.code) ||
+      if (scannedData.indexWhere((element) => element.text == scanData.code) ==
+              -1 ||
           scannedData.length == 0) {
         scannedData.add(ScannedData(
             text: scanData.code,
