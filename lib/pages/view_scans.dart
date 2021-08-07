@@ -3,14 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:qrcode_scanner/data/scan_data.dart';
 
-class ViewScans extends StatefulWidget {
-  const ViewScans({Key? key}) : super(key: key);
-
-  @override
-  _ViewScansState createState() => _ViewScansState();
-}
-
-class _ViewScansState extends State<ViewScans> {
+class ViewScans extends StatelessWidget {
   final _random = Random();
 
   Color? listColor() {
