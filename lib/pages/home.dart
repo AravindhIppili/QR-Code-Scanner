@@ -6,7 +6,7 @@ import 'package:qrcode_scanner/pages/scan_animation.dart';
 import 'package:qrcode_scanner/pages/view_scans.dart';
 
 class HomePage extends StatelessWidget {
-  final GlobalKey qrScanner = GlobalKey(debugLabel: 'QR');
+  final GlobalKey qrScanner = GlobalKey(debugLabel: 'QRCode');
 
   final stateContoller = Get.put(ScanController());
 
